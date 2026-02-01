@@ -2,8 +2,6 @@ use proc_macro::{TokenStream, TokenTree};
 use crate::versions::VerLog;
 use crate::deprecation::generate_deprecated_attr;
 
-use super::helper::*; 
-
 /// Separate a TokenStream by a given punctuation character. 
 /// Returns a vector of TokenStreams, each representing a segment between the punctuation. 
 fn seperate_by_punct(

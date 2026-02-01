@@ -1,4 +1,4 @@
-use proc_macro::{Ident, Literal, Punct, Spacing, Span, TokenStream, TokenTree};
+use proc_macro::{Ident, Literal, Span, TokenStream};
 use super::helper::*; 
 
 pub struct VerLog {
@@ -71,15 +71,15 @@ impl VerLog {
     } 
 
     pub fn into_doc_attr(&self) -> TokenStream {
-        let mut doc_string = format!("Version: {}, **{}**\n", self.version.to_string().trim_matches('"'), self.ver_type.to_string());
+        let mut doc_string = format!("Version: {}, **{}**\n\n", self.version.to_string().trim_matches('"'), self.ver_type.to_string());
         if let Some(note) = &self.note {
-            doc_string.push_str(&format!("Note: {}\n", note.to_string().trim_matches('"')));
+            doc_string.push_str(&format!("Note: {}\n\n", note.to_string().trim_matches('"')));
         }
         if let Some(date) = &self.date {
-            doc_string.push_str(&format!("Date: {}\n", date.to_string().trim_matches('"')));
+            doc_string.push_str(&format!("Date: {}\n\n", date.to_string().trim_matches('"')));
         }
         if let Some(author) = &self.author {
-            doc_string.push_str(&format!("Author: {}\n", author.to_string().trim_matches('"')));
+            doc_string.push_str(&format!("Author: {}\n\n", author.to_string().trim_matches('"')));
         }
         generate_doc_attribute(&doc_string)
     } 
@@ -88,29 +88,29 @@ impl VerLog {
         let mut doc_string = String::new(); 
         match self.ver_type { 
             VerType::Unstable => {
-                doc_string.push_str(&format!("**Unstable Version**: {}\n", self.version.to_string().trim_matches('"')));
+                doc_string.push_str(&format!("### Unstable Version: {}\n\n", self.version.to_string().trim_matches('"')));
             },
             VerType::Stable => {
-                doc_string.push_str(&format!("**Stable Version**: {}\n", self.version.to_string().trim_matches('"')));
+                doc_string.push_str(&format!("### Stable Version: {}\n\n", self.version.to_string().trim_matches('"')));
             },
             VerType::Update => {
-                doc_string.push_str(&format!("**Update Version**: {}\n", self.version.to_string().trim_matches('"')));
+                doc_string.push_str(&format!("### Updated Version: {}\n\n", self.version.to_string().trim_matches('"')));
             },
             VerType::UpdateUnstable => {
-                doc_string.push_str(&format!("**Update Unstable Version**: {}\n", self.version.to_string().trim_matches('"')));
+                doc_string.push_str(&format!("### Unstable Modified Version: {}\n\n", self.version.to_string().trim_matches('"')));
             },
             VerType::Deprecated => {
-                doc_string.push_str(&format!("**Deprecated Version**: {}\n", self.version.to_string().trim_matches('"')));
+                doc_string.push_str(&format!("### Deprecated Version: {}\n\n", self.version.to_string().trim_matches('"')));
             }, 
         }
         if let Some(note) = &self.note {
-            doc_string.push_str(&format!("Note: {}\n", note.to_string().trim_matches('"')));
+            doc_string.push_str(&format!("Note: {}\n\n", note.to_string().trim_matches('"')));
         }
         if let Some(date) = &self.date {
-            doc_string.push_str(&format!("Date: {}\n", date.to_string().trim_matches('"')));
+            doc_string.push_str(&format!("Date: {}\n\n", date.to_string().trim_matches('"')));
         }
         if let Some(author) = &self.author {
-            doc_string.push_str(&format!("Author: {}\n", author.to_string().trim_matches('"')));
+            doc_string.push_str(&format!("Author: {}\n\n", author.to_string().trim_matches('"')));
         }
         generate_doc_attribute(&doc_string)
     }  

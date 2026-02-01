@@ -26,3 +26,5 @@ fn main() {
     let result2 = better_function(5);
     println!("Better result: {}", result2);
 }
+
+

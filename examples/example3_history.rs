@@ -7,6 +7,11 @@
 
 use av::ver;
 
+fn main() {
+    println!("Running evolved_function with version history:");
+    evolved_function(42, true);
+}
+
 #[ver(
     update, since = "1.2.0", note = "Added new parameter", date = "2024-03-01";
     stable, since = "1.0.0", note = "First stable release", date = "2024-02-01";
@@ -20,7 +25,3 @@ pub fn evolved_function(value: i32, new_param: bool) {
     }
 }
 
-fn main() {
-    println!("Running evolved_function with version history:");
-    evolved_function(42, true);
-}
