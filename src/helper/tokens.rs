@@ -152,3 +152,22 @@ pub(crate) fn ensure_string_literal(literal: &Literal) -> Result<(), TokenStream
         ))
     }
 }
+
+/// Parse a comma-separated list of bare string literals: `"a", "b", "c"`.
+///
+/// Pure parser: does not enforce non-empty. Callers should check `is_empty()`
+/// and emit their own domain-specific error if the empty list is invalid for
+/// them. Trailing comma is accepted. Stops when the cursor is empty or after
+/// a literal not followed by `,`.
+pub fn parse_string_literal_list(
+    cursor: &mut Peekable<impl Iterator<Item = TokenTree>>,
+) -> Result<Vec<Literal>, TokenStream> {
+    let mut items = Vec::new();
+    while cursor.peek().is_some() {
+        items.push(expect_string_literal_consume(cursor)?);
+        if !match_punct_consume(cursor, ",") {
+            break;
+        }
+    }
+    Ok(items)
+}
