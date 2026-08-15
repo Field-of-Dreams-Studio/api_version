@@ -1,6 +1,7 @@
 use proc_macro::TokenStream;
 
 pub(crate) mod helper;
+pub(crate) mod fields;
 pub(crate) mod versions;
 pub(crate) mod loglist;
 pub(crate) mod deprecation;
