@@ -3,13 +3,12 @@ use av::{author, panics, safety, ver, verlog};
 #[ver(stable, since = "0.2.0")]
 pub fn versioned() {}
 
-// Ordering convention: write oldest at TOP, newest (the #[ver]) closest to the fn.
-// Rustc processes stacked proc-macro attributes so the innermost (bottom) doc lands
-// first in the expanded source — matching this write-order gives newest-first
-// rendering in rustdoc, with the #[ver] heading appearing right before the signature.
-#[verlog(unstable, since = "0.1.0", note = "Initial implementation")]
-#[verlog(stable, since = "1.1.0", note = "First stable release")]
+// Ordering: attribute stack reads top-to-bottom in the same order as the rendered
+// docs. Convention for this crate: #[ver] above older #[verlog] entries for
+// newest-first history, then #[author], then #[safety]/#[panics].
 #[ver(update, since = "1.2.0", note = "Added new parameter")]
+#[verlog(stable, since = "1.1.0", note = "First stable release")]
+#[verlog(unstable, since = "0.1.0", note = "Initial implementation")]
 #[author(name = "Akari")]
 pub fn stacked_history(_value: i32) {}
 

@@ -28,11 +28,11 @@ fn render_current(verlog: &VerLog) -> TokenStream {
     let version = version.trim_matches('"');
 
     let heading = match verlog.ver_type {
-        VerType::Unstable => format!("### Unstable Version: {version}"),
-        VerType::Stable => format!("### Stable Version: {version}"),
-        VerType::Update => format!("### Updated Version: {version}"),
-        VerType::UpdateUnstable => format!("### Unstable Modified Version: {version}"),
-        VerType::Deprecated => format!("### Deprecated Version: {version}"),
+        VerType::Unstable => format!("## Unstable Version: {version}"),
+        VerType::Stable => format!("## Stable Version: {version}"),
+        VerType::Update => format!("## Updated Version: {version}"),
+        VerType::UpdateUnstable => format!("## Unstable Modified Version: {version}"),
+        VerType::Deprecated => format!("## Deprecated Version: {version}"),
     };
 
     let mut doc = format!("{heading}\n\n");

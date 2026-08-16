@@ -20,6 +20,8 @@
 
 use proc_macro::TokenStream;
 
+use crate::helper::insert_docs_before_body;
+
 pub(crate) mod helper;
 pub(crate) mod fields;
 pub(crate) mod versioning;
@@ -42,29 +44,25 @@ pub(crate) mod author;
 /// Historical version entries live on stacked `#[verlog(...)]` attributes.
 ///
 /// ```ignore
-/// #[verlog(unstable, since = "0.1.0", note = "Prototype")]
 /// #[ver(stable, since = "1.1.0", note = "Stabilised")]
+/// #[verlog(unstable, since = "0.1.0", note = "Prototype")]
 /// pub fn my_api() { }
 /// ```
 ///
-/// **Ordering:** write the oldest entry at the top and the current `#[ver]`
-/// closest to the fn. Rust processes stacked proc-macro attributes such that the
-/// innermost (bottom) attribute's docs land first in the expanded source; writing
-/// in this order renders newest-first, with the highlighted `#[ver]` heading
-/// appearing right above the signature.
+/// **Ordering:** the attribute stack reads top-to-bottom in the same order the
+/// rendered docs appear. Put `#[ver]` above older `#[verlog]` entries for
+/// newest-first history. Every macro in this suite inserts its docs AFTER any
+/// user `///` lines, so the user's description always comes first.
 ///
 /// The `;`-separated multi-entry form (`#[ver(a; b; c)]`) from earlier versions
 /// is no longer accepted.
 #[proc_macro_attribute]
 pub fn ver(attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut cursor = attr.into_iter().peekable();
-    let mut output = TokenStream::new();
     match versioning::generate_ver_docs(&mut cursor) {
-        Ok(docs) => output.extend(docs),
-        Err(err) => return err,
+        Ok(docs) => insert_docs_before_body(item, docs),
+        Err(err) => err,
     }
-    output.extend(item);
-    output
 }
 
 /// Record a historical version entry, rendered as a plain (non-highlighted) log line.
@@ -72,25 +70,22 @@ pub fn ver(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// Zero or more `#[verlog(...)]` per item. Never emits `#[deprecated]` — that role
 /// belongs solely to `#[ver]`. Same field shape as `#[ver]`.
 ///
-/// See [`macro@ver`] for the ordering convention (write oldest at top, newest
-/// `#[ver]` closest to the fn).
+/// See [`macro@ver`] for the ordering convention (the attribute stack reads in
+/// the same order as the rendered docs).
 ///
 /// ```ignore
-/// #[verlog(unstable, since = "0.1.0", note = "Prototype")]
-/// #[verlog(stable, since = "1.0.0", note = "First stable release")]
 /// #[ver(update, since = "1.1.0", note = "Added new parameter")]
+/// #[verlog(stable, since = "1.0.0", note = "First stable release")]
+/// #[verlog(unstable, since = "0.1.0", note = "Prototype")]
 /// pub fn my_api() { }
 /// ```
 #[proc_macro_attribute]
 pub fn verlog(attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut cursor = attr.into_iter().peekable();
-    let mut output = TokenStream::new();
     match versioning::generate_verlog_docs(&mut cursor) {
-        Ok(docs) => output.extend(docs),
-        Err(err) => return err,
+        Ok(docs) => insert_docs_before_body(item, docs),
+        Err(err) => err,
     }
-    output.extend(item);
-    output
 }
 
 /// Document the preconditions a caller must uphold when invoking an `unsafe fn`.
@@ -105,13 +100,10 @@ pub fn verlog(attr: TokenStream, item: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn safety(attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut cursor = attr.into_iter().peekable();
-    let mut output = TokenStream::new();
     match safety::generate_safety_docs(&mut cursor) {
-        Ok(docs) => output.extend(docs),
-        Err(err) => return err,
+        Ok(docs) => insert_docs_before_body(item, docs),
+        Err(err) => err,
     }
-    output.extend(item);
-    output
 }
 
 /// Document when a function panics.
@@ -129,13 +121,10 @@ pub fn safety(attr: TokenStream, item: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn panics(attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut cursor = attr.into_iter().peekable();
-    let mut output = TokenStream::new();
     match panics::generate_panics_docs(&mut cursor) {
-        Ok(docs) => output.extend(docs),
-        Err(err) => return err,
+        Ok(docs) => insert_docs_before_body(item, docs),
+        Err(err) => err,
     }
-    output.extend(item);
-    output
 }
 
 /// Record the author(s) of a function or type under `## Authors`.
@@ -156,11 +145,8 @@ pub fn panics(attr: TokenStream, item: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn author(attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut cursor = attr.into_iter().peekable();
-    let mut output = TokenStream::new();
     match author::generate_author_docs(&mut cursor) {
-        Ok(docs) => output.extend(docs),
-        Err(err) => return err,
+        Ok(docs) => insert_docs_before_body(item, docs),
+        Err(err) => err,
     }
-    output.extend(item);
-    output
 }
