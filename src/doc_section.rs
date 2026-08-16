@@ -7,10 +7,17 @@ pub enum ListStyle {
     Bulleted,
 }
 
+#[allow(dead_code)]
+pub enum HeadingLevel {
+    H1,
+    H2,
+    H3,
+}
+
 /// A rustdoc section rendered as a titled list, e.g.
 ///
 /// ```text
-/// ## Safety
+/// # Safety
 /// The caller must uphold:
 ///
 /// 1. first condition
@@ -20,6 +27,7 @@ pub enum ListStyle {
 /// Emitted as a single `#[doc = "..."]` attribute.
 pub struct DocSection<'a> {
     pub title: &'a str,
+    pub heading_level: HeadingLevel,
     pub preamble: Option<&'a str>,
     pub style: ListStyle,
     pub items: Vec<String>,
@@ -27,7 +35,12 @@ pub struct DocSection<'a> {
 
 impl DocSection<'_> {
     pub fn render(&self) -> TokenStream {
-        let mut doc = format!("## {}\n", self.title);
+        let marker = match self.heading_level {
+            HeadingLevel::H1 => "#",
+            HeadingLevel::H2 => "##",
+            HeadingLevel::H3 => "###",
+        };
+        let mut doc = format!("{marker} {}\n", self.title);
         if let Some(preamble) = self.preamble {
             doc.push_str(preamble);
             doc.push_str("\n\n");

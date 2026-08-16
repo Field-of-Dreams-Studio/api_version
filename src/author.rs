@@ -2,20 +2,20 @@ use core::iter::Peekable;
 
 use proc_macro::{Literal, TokenStream, TokenTree};
 
-use crate::doc_section::{DocSection, ListStyle};
+use crate::doc_section::{DocSection, HeadingLevel, ListStyle};
 use crate::fields::AttrLiteralFields;
 use crate::helper::{expect_end, parse_string_literal_fields};
 
-// TODO: merge sibling `#[author]` attributes into a single `## Authors` section.
+// TODO: merge sibling `#[author]` attributes into a single `# Authors` section.
 //
 // Current behaviour: each `#[author(...)]` invocation emits its own
-// `## Authors` heading + one bullet. When multiple `#[author]`s stack on one
-// item, rustdoc renders repeated `## Authors` headings — one per attribute.
+// `# Authors` heading + one bullet. When multiple `#[author]`s stack on one
+// item, rustdoc renders repeated `# Authors` headings — one per attribute.
 //
 // Intended behaviour: the outermost (top-most) `#[author]` should scan the
 // `item` TokenStream passed to it, extract any subsequent `#[author(...)]`
 // attributes on the same item, remove them from `item`, and render one
-// combined `## Authors` section with a bullet per author. Inner `#[author]`
+// combined `# Authors` section with a bullet per author. Inner `#[author]`
 // attributes, once absorbed, must not run — either by stripping them from
 // `item` (so rustc never sees them as attribute macros) or by making them
 // no-ops when they detect they've been absorbed.
@@ -58,10 +58,11 @@ pub fn generate_author_docs(
         entry.push_str(&format!(" ({})", extras.join(", ")));
     }
 
-    // Multiple `#[author]` on one item each emit a `## Authors` heading;
+    // Multiple `#[author]` on one item each emit a `# Authors` heading;
     // rustdoc renders both. Single-author is the polished case.
     Ok(DocSection {
         title: "Authors",
+        heading_level: HeadingLevel::H1,
         preamble: None,
         style: ListStyle::Bulleted,
         items: vec![entry],

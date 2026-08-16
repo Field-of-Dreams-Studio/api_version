@@ -1,7 +1,8 @@
 [package]
 name = "av"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
+rust-version = "1.88"
 authors = ["Redstone <redstone@fds.moe>"] 
 description = "A Rust procedural macro for tracking API version history and deprecation warnings. " 
 license = "MIT" 

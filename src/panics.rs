@@ -2,7 +2,7 @@ use core::iter::Peekable;
 
 use proc_macro::{Span, TokenStream, TokenTree};
 
-use crate::doc_section::{DocSection, ListStyle};
+use crate::doc_section::{DocSection, HeadingLevel, ListStyle};
 use crate::helper::{
     expect_end, generate_compile_error, generate_doc_attribute, parse_string_literal_list,
 };
@@ -17,7 +17,7 @@ pub fn generate_panics_docs(
             "the 'never'/'none' sentinel is exclusive; remove additional arguments",
         )?;
         return Ok(generate_doc_attribute(
-            "## Panics\n\nThis function does not panic.",
+            "# Panics\n\nThis function does not panic.",
         ));
     }
 
@@ -38,6 +38,7 @@ pub fn generate_panics_docs(
 
     Ok(DocSection {
         title: "Panics",
+        heading_level: HeadingLevel::H1,
         preamble: Some("This function panics when:"),
         style: ListStyle::Numbered,
         items,

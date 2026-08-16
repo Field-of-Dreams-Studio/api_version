@@ -9,9 +9,9 @@
 //! 3. `Version: 1.2.0, **Update**` — historical, newest first
 //! 4. `Version: 1.0.0, **Stable**`
 //! 5. `Version: 0.1.0, **Unstable**` — oldest
-//! 6. `## Authors`
-//! 7. `## Safety`
-//! 8. `## Panics`
+//! 6. `# Authors`
+//! 7. `# Safety`
+//! 8. `# Panics`
 
 use av::{author, panics, safety, ver, verlog};
 

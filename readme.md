@@ -38,7 +38,7 @@ pub fn versioned() {}
 pub fn history() {}
 
 // #[safety] — comma-separated list of preconditions rendered as a
-// numbered `## Safety` section.
+// numbered `# Safety` section.
 #[safety("caller must ensure ptr is non-null")]
 pub unsafe fn peek(_ptr: *const u8) {}
 
@@ -101,9 +101,9 @@ Rendered (top to bottom) as:
 3. `Version: 1.2.0, **Update**`
 4. `Version: 1.0.0, **Stable**`
 5. `Version: 0.1.0, **Unstable**`
-6. `## Authors` — bulleted list
-7. `## Safety` — three numbered conditions
-8. `## Panics` — two numbered conditions
+6. `# Authors` — bulleted list
+7. `# Safety` — three numbered conditions
+8. `# Panics` — two numbered conditions
 
 See `examples/complete.rs` for the runnable version.
 

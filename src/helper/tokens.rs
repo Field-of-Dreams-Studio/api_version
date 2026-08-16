@@ -141,6 +141,10 @@ pub(crate) fn expect_string_literal_consume(
 }
 
 /// Rejects literal tokens that are not ordinary or raw Rust strings.
+///
+/// TODO: Add a shared decoder that returns the actual string value and replace
+/// the renderers' `Literal::to_string().trim_matches('"')` calls. The current
+/// conversion does not correctly render raw strings or escaped content.
 pub(crate) fn ensure_string_literal(literal: &Literal) -> Result<(), TokenStream> {
     let source = literal.to_string();
     if source.starts_with('"') || source.starts_with("r\"") || source.starts_with("r#") {

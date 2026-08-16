@@ -2,7 +2,7 @@ use core::iter::Peekable;
 
 use proc_macro::{Span, TokenStream, TokenTree};
 
-use crate::doc_section::{DocSection, ListStyle};
+use crate::doc_section::{DocSection, HeadingLevel, ListStyle};
 use crate::helper::{
     expect_end, generate_compile_error, parse_string_literal_list,
 };
@@ -27,6 +27,7 @@ pub fn generate_safety_docs(
 
     Ok(DocSection {
         title: "Safety",
+        heading_level: HeadingLevel::H1,
         preamble: Some("The caller must uphold:"),
         style: ListStyle::Numbered,
         items,

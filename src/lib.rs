@@ -33,7 +33,7 @@ pub(crate) mod author;
 
 /// Record the current version of an API item.
 ///
-/// Exactly one `#[ver(...)]` per item. Renders a highlighted version heading;
+/// Conventionally, use one `#[ver(...)]` per item. It renders a highlighted version heading;
 /// when the status is `deprecated` (or `unstable` under the
 /// `deprecated_for_unstable` feature), also emits a `#[deprecated]` attribute.
 ///
@@ -91,7 +91,7 @@ pub fn verlog(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// Document the preconditions a caller must uphold when invoking an `unsafe fn`.
 ///
 /// Accepts a comma-separated list of string literals; each is rendered as one entry
-/// in a numbered list under `## Safety`.
+/// in a numbered list under `# Safety`.
 ///
 /// ```ignore
 /// #[safety("ptr is a valid pointer to at least len bytes")]
@@ -108,7 +108,7 @@ pub fn safety(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 /// Document when a function panics.
 ///
-/// Accepts a comma-separated list of string literals rendered under `## Panics`, or
+/// Accepts a comma-separated list of string literals rendered under `# Panics`, or
 /// the bare sentinel `never` / `none` to document that the function does not panic.
 ///
 /// ```ignore
@@ -127,7 +127,7 @@ pub fn panics(attr: TokenStream, item: TokenStream) -> TokenStream {
     }
 }
 
-/// Record the author(s) of a function or type under `## Authors`.
+/// Record the author(s) of a function or type under `# Authors`.
 ///
 /// Each `#[author(...)]` records one entry. Fields: `name` (required),
 /// `email`, `github`, `role` (optional).
@@ -138,7 +138,7 @@ pub fn panics(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// pub fn my_api() { }
 /// ```
 ///
-/// **Note:** each stacked `#[author]` currently emits its own `## Authors`
+/// **Note:** each stacked `#[author]` currently emits its own `# Authors`
 /// heading, so multi-author items render with a repeated heading. A future
 /// release will merge sibling `#[author]` attributes into one section — see
 /// the TODO in `src/author.rs`.
