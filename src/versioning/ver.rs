@@ -38,7 +38,6 @@ fn render_current(verlog: &VerLog) -> TokenStream {
     let mut doc = format!("{heading}\n\n");
     append_optional(&mut doc, "Note", verlog.note.as_ref());
     append_optional(&mut doc, "Date", verlog.date.as_ref());
-    append_optional(&mut doc, "Author", verlog.author.as_ref());
 
     generate_doc_attribute(&doc)
 }

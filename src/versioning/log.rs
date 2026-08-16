@@ -12,7 +12,6 @@ pub struct VerLog {
     pub version: Literal,
     pub note: Option<Literal>,
     pub date: Option<Literal>,
-    pub author: Option<Literal>,
 }
 
 impl VerLog {
@@ -21,20 +20,19 @@ impl VerLog {
         version: Literal,
         note: Option<Literal>,
         date: Option<Literal>,
-        author: Option<Literal>,
     ) -> Self {
         VerLog {
             ver_type,
             version,
             note,
             date,
-            author,
         }
     }
 
     /// Parse one version entry from the cursor.
     ///
-    /// Grammar: `status, since = "..." [, note = "..."] [, date = "..."] [, author = "..."]`.
+    /// Grammar: `status, since = "..." [, note = "..."] [, date = "..."]`.
+    /// Authorship is recorded separately via `#[author(...)]`.
     /// The `;`-separated multi-entry form is no longer supported; a `;` at the top
     /// level yields a targeted migration error.
     pub fn from_tokens(
@@ -70,10 +68,9 @@ impl VerLog {
         let version = fields.take_required("since")?;
         let note = fields.take_optional("note");
         let date = fields.take_optional("date");
-        let author = fields.take_optional("author");
         fields.reject_rest()?;
 
-        Ok(VerLog::new(ver_type, version, note, date, author))
+        Ok(VerLog::new(ver_type, version, note, date))
     }
 }
 
