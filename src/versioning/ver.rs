@@ -36,16 +36,7 @@ fn render_current(verlog: &VerLog) -> TokenStream {
     };
 
     let mut doc = format!("{heading}\n\n");
-    append_optional(&mut doc, "Note", verlog.note.as_ref());
-    append_optional(&mut doc, "Date", verlog.date.as_ref());
+    verlog.append_optional_fields(&mut doc);
 
     generate_doc_attribute(&doc)
-}
-
-fn append_optional(doc: &mut String, label: &str, literal: Option<&proc_macro::Literal>) {
-    if let Some(lit) = literal {
-        let value = lit.to_string();
-        let value = value.trim_matches('"');
-        doc.push_str(&format!("{label}: {value}\n\n"));
-    }
 }

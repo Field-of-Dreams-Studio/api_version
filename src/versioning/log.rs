@@ -48,15 +48,6 @@ impl VerLog {
 
         let pairs = parse_string_literal_fields(cursor)?;
 
-        if let Some(TokenTree::Punct(punct)) = cursor.peek() {
-            if punct.as_char() == ';' {
-                return Err(generate_compile_error(
-                    punct.span(),
-                    "the `;`-separated multi-entry form is no longer supported; use one #[ver(...)] and stack additional #[verlog(...)] attributes",
-                ));
-            }
-        }
-
         if let Some(token) = cursor.next() {
             return Err(generate_compile_error(
                 token.span(),
@@ -71,6 +62,24 @@ impl VerLog {
         fields.reject_rest()?;
 
         Ok(VerLog::new(ver_type, version, note, date))
+    }
+
+    /// Append every present optional field (`Note`, `Date`) as a labeled line
+    /// of the form `"Label: value\n\n"`.
+    ///
+    /// Shared by the current and historical renderers so the label→field mapping
+    /// lives with the data instead of being duplicated across `ver.rs` / `verlog.rs`.
+    pub fn append_optional_fields(&self, doc: &mut String) {
+        Self::append_optional(doc, "Note", self.note.as_ref());
+        Self::append_optional(doc, "Date", self.date.as_ref());
+    }
+
+    fn append_optional(doc: &mut String, label: &str, literal: Option<&Literal>) {
+        if let Some(lit) = literal {
+            let value = lit.to_string();
+            let value = value.trim_matches('"');
+            doc.push_str(&format!("{label}: {value}\n\n"));
+        }
     }
 }
 

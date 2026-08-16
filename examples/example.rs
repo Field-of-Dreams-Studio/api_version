@@ -7,9 +7,10 @@ pub fn versioned() {}
 // Rustc processes stacked proc-macro attributes so the innermost (bottom) doc lands
 // first in the expanded source — matching this write-order gives newest-first
 // rendering in rustdoc, with the #[ver] heading appearing right before the signature.
-#[verlog(unstable, since = "0.1.0", note = "Initial implementation", author = "Redstone")]
-#[verlog(stable, since = "1.1.0", note = "First stable release", author = "Akari")]
-#[ver(update, since = "1.2.0", note = "Added new parameter", author = "Akari")]
+#[verlog(unstable, since = "0.1.0", note = "Initial implementation")]
+#[verlog(stable, since = "1.1.0", note = "First stable release")]
+#[ver(update, since = "1.2.0", note = "Added new parameter")]
+#[author(name = "Akari")]
 pub fn stacked_history(_value: i32) {}
 
 #[safety("caller must ensure ptr is non-null")]

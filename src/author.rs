@@ -6,6 +6,30 @@ use crate::doc_section::{DocSection, ListStyle};
 use crate::fields::AttrLiteralFields;
 use crate::helper::{expect_end, parse_string_literal_fields};
 
+// TODO: merge sibling `#[author]` attributes into a single `## Authors` section.
+//
+// Current behaviour: each `#[author(...)]` invocation emits its own
+// `## Authors` heading + one bullet. When multiple `#[author]`s stack on one
+// item, rustdoc renders repeated `## Authors` headings — one per attribute.
+//
+// Intended behaviour: the outermost (top-most) `#[author]` should scan the
+// `item` TokenStream passed to it, extract any subsequent `#[author(...)]`
+// attributes on the same item, remove them from `item`, and render one
+// combined `## Authors` section with a bullet per author. Inner `#[author]`
+// attributes, once absorbed, must not run — either by stripping them from
+// `item` (so rustc never sees them as attribute macros) or by making them
+// no-ops when they detect they've been absorbed.
+//
+// Machinery for this is already available in `crate::helper::attrs`:
+//   - `parse_outer_attr_bodies(cursor)` — collect all leading outer-attribute
+//     bodies from a token stream.
+//   - `match_outer_attr_list(body, "author")` — filter for `#[author(...)]`
+//     specifically and return the inner arg tokens.
+//
+// The macro signature would change to take `item` as well:
+//   pub fn generate_author_docs(attr, item) -> (TokenStream /* docs */,
+//                                               TokenStream /* rewritten item */)
+// and lib.rs would forward `attr` and `item` and re-emit the rewritten item.
 pub fn generate_author_docs(
     cursor: &mut Peekable<impl Iterator<Item = TokenTree>>,
 ) -> Result<TokenStream, TokenStream> {

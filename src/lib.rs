@@ -1,3 +1,23 @@
+//! # av — attribute macros for API documentation
+//!
+//! A suite of five attribute macros that document API contracts the type system
+//! cannot express. Each macro renders a structured rustdoc section on the item it
+//! decorates.
+//!
+//! | Macro | Section | Purpose |
+//! |---|---|---|
+//! | [`macro@ver`]     | Version History (current)    | The current version of this API |
+//! | [`macro@verlog`]  | Version History (historical) | A past version entry |
+//! | [`macro@safety`]  | Safety                       | What the caller must uphold for `unsafe fn` |
+//! | [`macro@panics`]  | Panics                       | When and why the function panics |
+//! | [`macro@author`]  | Authors                      | Who owns this API |
+//!
+//! ## Cargo features
+//!
+//! - `deprecated_for_unstable` (off by default) — when enabled,
+//!   `#[ver(unstable, ...)]` also emits a `#[deprecated]` attribute with an
+//!   `[UNSTABLE]` note prefix, so callers of unstable APIs get a compiler warning.
+
 use proc_macro::TokenStream;
 
 pub(crate) mod helper;
@@ -15,17 +35,26 @@ pub(crate) mod author;
 /// when the status is `deprecated` (or `unstable` under the
 /// `deprecated_for_unstable` feature), also emits a `#[deprecated]` attribute.
 ///
-/// Grammar: `status, since = "…" [, note = "…"] [, date = "…"] [, author = "…"]`.
+/// Grammar: `status, since = "…" [, note = "…"] [, date = "…"]`. Statuses are
+/// `unstable`, `stable`, `update`, `update_unstable`, `deprecated` (case-insensitive).
+/// Authorship is a separate concern — see [`macro@author`].
 ///
 /// Historical version entries live on stacked `#[verlog(...)]` attributes.
 ///
 /// ```ignore
-/// #[ver(stable, since = "1.1.0", note = "Stabilised", author = "Akari")]
-/// #[verlog(unstable, since = "0.1.0", note = "Prototype", author = "Redstone")]
+/// #[verlog(unstable, since = "0.1.0", note = "Prototype")]
+/// #[ver(stable, since = "1.1.0", note = "Stabilised")]
 /// pub fn my_api() { }
 /// ```
 ///
-/// The `;`-separated multi-entry form (`#[ver(a; b; c)]`) is no longer accepted.
+/// **Ordering:** write the oldest entry at the top and the current `#[ver]`
+/// closest to the fn. Rust processes stacked proc-macro attributes such that the
+/// innermost (bottom) attribute's docs land first in the expanded source; writing
+/// in this order renders newest-first, with the highlighted `#[ver]` heading
+/// appearing right above the signature.
+///
+/// The `;`-separated multi-entry form (`#[ver(a; b; c)]`) from earlier versions
+/// is no longer accepted.
 #[proc_macro_attribute]
 pub fn ver(attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut cursor = attr.into_iter().peekable();
@@ -40,15 +69,16 @@ pub fn ver(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 /// Record a historical version entry, rendered as a plain (non-highlighted) log line.
 ///
-/// Zero or more `#[verlog(...)]` per item; stack in the order they should appear in
-/// the rendered docs (most-recent-first is the convention). Never emits
-/// `#[deprecated]` — that role belongs solely to `#[ver]`.
+/// Zero or more `#[verlog(...)]` per item. Never emits `#[deprecated]` — that role
+/// belongs solely to `#[ver]`. Same field shape as `#[ver]`.
 ///
-/// Same field shape as `#[ver]`.
+/// See [`macro@ver`] for the ordering convention (write oldest at top, newest
+/// `#[ver]` closest to the fn).
 ///
 /// ```ignore
-/// #[ver(stable, since = "1.1.0", author = "Akari")]
-/// #[verlog(unstable, since = "0.1.0", author = "Redstone")]
+/// #[verlog(unstable, since = "0.1.0", note = "Prototype")]
+/// #[verlog(stable, since = "1.0.0", note = "First stable release")]
+/// #[ver(update, since = "1.1.0", note = "Added new parameter")]
 /// pub fn my_api() { }
 /// ```
 #[proc_macro_attribute]
@@ -69,11 +99,8 @@ pub fn verlog(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// in a numbered list under `## Safety`.
 ///
 /// ```ignore
-/// #[safety(
-///     "fd is a valid open file descriptor",
-///     "buf points to at least count readable bytes"
-/// )]
-/// pub unsafe fn raw_write(fd: i32, buf: *const u8, count: usize) -> isize { ... }
+/// #[safety("ptr is a valid pointer to at least len bytes")]
+/// pub unsafe fn peek(ptr: *const u8, len: usize) -> u8 { ... }
 /// ```
 #[proc_macro_attribute]
 pub fn safety(attr: TokenStream, item: TokenStream) -> TokenStream {
@@ -93,11 +120,11 @@ pub fn safety(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// the bare sentinel `never` / `none` to document that the function does not panic.
 ///
 /// ```ignore
-/// #[panics("when index >= self.len()", "when the lock is poisoned")]
-/// pub fn get(&self, index: usize) -> &T { ... }
+/// #[panics("when index is out of bounds", "when the lock is poisoned")]
+/// pub fn get(index: usize) -> u8 { ... }
 ///
 /// #[panics(never)]
-/// pub fn try_get(&self) -> Option<&T> { ... }
+/// pub fn try_get() -> Option<u8> { ... }
 /// ```
 #[proc_macro_attribute]
 pub fn panics(attr: TokenStream, item: TokenStream) -> TokenStream {
@@ -121,6 +148,11 @@ pub fn panics(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// #[author(name = "Akari", github = "akari", role = "maintainer")]
 /// pub fn my_api() { }
 /// ```
+///
+/// **Note:** each stacked `#[author]` currently emits its own `## Authors`
+/// heading, so multi-author items render with a repeated heading. A future
+/// release will merge sibling `#[author]` attributes into one section — see
+/// the TODO in `src/author.rs`.
 #[proc_macro_attribute]
 pub fn author(attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut cursor = attr.into_iter().peekable();
