@@ -30,6 +30,7 @@ pub(crate) mod doc_section;
 pub(crate) mod safety;
 pub(crate) mod panics;
 pub(crate) mod author;
+pub(crate) mod cite;
 
 /// Record the current version of an API item.
 ///
@@ -146,6 +147,31 @@ pub fn panics(attr: TokenStream, item: TokenStream) -> TokenStream {
 pub fn author(attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut cursor = attr.into_iter().peekable();
     match author::generate_author_docs(&mut cursor) {
+        Ok(docs) => insert_docs_before_body(item, docs),
+        Err(err) => err,
+    }
+}
+
+/// Cite an external written work — book, paper, RFC, spec, blog post, tutorial
+/// — that discusses or reproduces this item. Renders under `# Reference`.
+///
+/// Fields: `work` (required); optional `volume`, `edition`, `chapter`,
+/// `section`, `listing`, `figure`, `page`, `caption`, `doi`, `url`.
+/// All values are string literals — see `docs/cite.md` for rationale.
+///
+/// ```ignore
+/// #[cite(work = "OSRust", chapter = "6.3", listing = "6.14", page = "137")]
+/// #[cite(work = "SafeWrappers2026", section = "3.2")]
+/// pub fn safe_pipe_split() { ... }
+/// ```
+///
+/// **Note:** stacked `#[cite]`s each emit their own `# Reference` heading —
+/// same sibling-blindness caveat as [`macro@author`]. See the TODO in
+/// `src/cite.rs` for the intended merge behaviour.
+#[proc_macro_attribute]
+pub fn cite(attr: TokenStream, item: TokenStream) -> TokenStream {
+    let mut cursor = attr.into_iter().peekable();
+    match cite::generate_cite_docs(&mut cursor) {
         Ok(docs) => insert_docs_before_body(item, docs),
         Err(err) => err,
     }
