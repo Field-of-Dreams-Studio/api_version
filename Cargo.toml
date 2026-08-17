@@ -1,7 +1,8 @@
 [package]
 name = "av"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
+rust-version = "1.88"
 authors = ["Redstone <redstone@fds.moe>"] 
 description = "A Rust procedural macro for tracking API version history and deprecation warnings. " 
 license = "MIT" 
@@ -17,23 +18,3 @@ proc-macro = true
 deprecated_for_unstable = []
 
 [dependencies]
-
-[[example]]
-name = "example1_minimal"
-path = "examples/example1_minimal.rs"
-
-[[example]]
-name = "example2_full"
-path = "examples/example2_full.rs"
-
-[[example]]
-name = "example3_history"
-path = "examples/example3_history.rs"
-
-[[example]]
-name = "example4_warning_unstable"
-path = "examples/example4_warning_unstable.rs"
-
-[[example]]
-name = "example5_warning_deprecated"
-path = "examples/example5_warning_deprecated.rs"
