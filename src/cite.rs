@@ -21,7 +21,7 @@ pub fn generate_cite_docs(
     let mut fields: AttrLiteralFields = pairs.try_into()?;
     let work = fields.take_required("work")?;
     let volume = fields.take_optional("volume");
-    let edition = fields.take_optional("edition");
+    let edition: Option<Literal> = fields.take_optional("edition");
     let chapter = fields.take_optional("chapter");
     let section = fields.take_optional("section");
     let listing = fields.take_optional("listing");
