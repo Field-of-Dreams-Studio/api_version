@@ -1,4 +1,4 @@
-use av::{author, panics, safety, ver, verlog};
+use av::{author, cite, panics, safety, ver, verlog};
 
 #[ver(stable, since = "0.2.0")]
 pub fn versioned() {}
@@ -24,6 +24,10 @@ pub fn never_panics() {}
 #[author(name = "Redstone", email = "redstone@example.com")]
 pub fn authored() {}
 
+#[cite(work = "OSRust", chapter = "6.3", listing = "6.14", page = "137",
+       doi = "10.1145/1234567.1234568")]
+pub fn cited() {}
+
 fn main() {
     versioned();
     stacked_history(0);
@@ -31,4 +35,5 @@ fn main() {
     may_panic(1);
     never_panics();
     authored();
+    cited();
 }
